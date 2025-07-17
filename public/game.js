@@ -1,13 +1,20 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-const waveCounter = document.getElementById("waveCounter");
+const heroHpEl = document.getElementById("heroHp");
 
-let coins = 100;
+let heroHp = 100;
 let enemies = [];
-let towers = [];
-let waveNumber = 1;
-let isWaveInProgress = false;
-let waveCooldown = 3000;
+let path = [
+  {x: 160, y: 0},
+  {x: 160, y: 200},
+  {x: 300, y: 200},
+  {x: 300, y: 350},
+  {x: window.innerWidth / 2, y: window.innerHeight - 50}
+];
+
+let selectedHero = localStorage.getItem("selectedHero") || "hero1.png";
+let heroImg = new Image();
+heroImg.src = "assets/" + selectedHero;
 
 function resizeCanvas() {
   const dpr = window.devicePixelRatio || 1;
@@ -19,84 +26,79 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-// Игровой цикл
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Враги
-  enemies.forEach(e => {
-    ctx.fillStyle = "red";
-    ctx.fillRect(e.x, e.y, 20, 20);
-    e.x += e.speed;
-    if (e.x > window.innerWidth) e.hp = 0;
+function spawnEnemy() {
+  enemies.push({
+    pathIndex: 0,
+    x: path[0].x,
+    y: path[0].y,
+    speed: 1,
+    hp: 10
   });
-
-  // Башни
-  towers.forEach(t => {
-    ctx.fillStyle = "cyan";
-    ctx.fillRect(t.x, t.y, 20, 20);
-
-    const target = enemies.find(e => {
-      const dx = e.x - t.x;
-      const dy = e.y - t.y;
-      return Math.sqrt(dx * dx + dy * dy) < t.range;
-    });
-
-    if (target) {
-      target.hp -= t.damage;
-      if (target.hp <= 0) {
-        enemies = enemies.filter(e => e !== target);
-        coins += 10;
-        console.log("Монеты:", coins);
-      }
-    }
-  });
-
-  // Удаление мертвых врагов
-  enemies = enemies.filter(e => e.hp > 0);
-
-  requestAnimationFrame(draw);
 }
 
-// Установка башни
-canvas.addEventListener("click", (e) => {
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  if (coins >= 50) {
-    towers.push({ x, y, damage: 10, range: 100 });
-    coins -= 50;
-    console.log("Поставлена башня. Осталось монет:", coins);
-  }
-});
-
-// Волны врагов
-function startWave() {
-  isWaveInProgress = true;
-  waveCounter.textContent = "Волна: " + waveNumber;
-
-  let spawnCount = 0;
-  const totalEnemies = 5 + waveNumber * 2;
-
-  const spawnInterval = setInterval(() => {
-    if (spawnCount >= totalEnemies) {
-      clearInterval(spawnInterval);
-      isWaveInProgress = false;
-      waveNumber++;
-      setTimeout(startWave, waveCooldown);
+function updateEnemies() {
+  enemies.forEach(enemy => {
+    const target = path[enemy.pathIndex + 1];
+    if (!target) {
+      // Враг добрался до героя
+      heroHp -= 10;
+      heroHpEl.textContent = heroHp;
+      enemy.hp = 0;
       return;
     }
+    const dx = target.x - enemy.x;
+    const dy = target.y - enemy.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 2) {
+      enemy.pathIndex++;
+    } else {
+      enemy.x += (dx / dist) * enemy.speed;
+      enemy.y += (dy / dist) * enemy.speed;
+    }
+  });
 
-    enemies.push({
-      x: 0,
-      y: 50 + Math.random() * (window.innerHeight - 100),
-      speed: 1 + waveNumber * 0.2,
-      hp: 20 + waveNumber * 5
-    });
-
-    spawnCount++;
-  }, 400);
+  // Удаляем мёртвых врагов
+  enemies = enemies.filter(e => e.hp > 0);
 }
 
-draw();
-startWave();
+function drawPath() {
+  ctx.strokeStyle = "#555";
+  ctx.lineWidth = 20;
+  ctx.beginPath();
+  ctx.moveTo(path[0].x, path[0].y);
+  for (let i = 1; i < path.length; i++) {
+    ctx.lineTo(path[i].x, path[i].y);
+  }
+  ctx.stroke();
+}
+
+function drawEnemies() {
+  enemies.forEach(e => {
+    ctx.fillStyle = "red";
+    ctx.fillRect(e.x - 10, e.y - 10, 20, 20);
+  });
+}
+
+function drawHero() {
+  const target = path[path.length - 1];
+  ctx.drawImage(heroImg, target.x - 25, target.y, 50, 50);
+}
+
+function gameLoop() {
+  if (heroHp <= 0) {
+    alert("🛑 Игра окончена! Герой погиб.");
+    window.location.href = "index.html";
+    return;
+  }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawPath();
+  updateEnemies();
+  drawEnemies();
+  drawHero();
+
+  requestAnimationFrame(gameLoop);
+}
+
+setInterval(spawnEnemy, 2000);
+gameLoop();
