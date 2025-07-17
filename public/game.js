@@ -1,22 +1,25 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+const waveCounter = document.getElementById("waveCounter");
 
 let coins = 100;
 let enemies = [];
 let towers = [];
+let waveNumber = 1;
+let isWaveInProgress = false;
+let waveCooldown = 3000;
 
-// Размеры и масштаб под мобилки
 function resizeCanvas() {
   const dpr = window.devicePixelRatio || 1;
   canvas.width = window.innerWidth * dpr;
   canvas.height = window.innerHeight * dpr;
-  ctx.setTransform(1, 0, 0, 1, 0, 0); // сброс трансформации
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.scale(dpr, dpr);
 }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-// Отрисовка
+// Игровой цикл
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -25,8 +28,6 @@ function draw() {
     ctx.fillStyle = "red";
     ctx.fillRect(e.x, e.y, 20, 20);
     e.x += e.speed;
-
-    // Если враг добрался до правого края
     if (e.x > window.innerWidth) e.hp = 0;
   });
 
@@ -35,7 +36,6 @@ function draw() {
     ctx.fillStyle = "cyan";
     ctx.fillRect(t.x, t.y, 20, 20);
 
-    // Поиск ближайшего врага в радиусе
     const target = enemies.find(e => {
       const dx = e.x - t.x;
       const dy = e.y - t.y;
@@ -52,18 +52,11 @@ function draw() {
     }
   });
 
+  // Удаление мертвых врагов
+  enemies = enemies.filter(e => e.hp > 0);
+
   requestAnimationFrame(draw);
 }
-
-// Спавн врагов
-setInterval(() => {
-  enemies.push({
-    x: 0,
-    y: 50 + Math.random() * (window.innerHeight - 100),
-    speed: 1 + Math.random(),
-    hp: 20
-  });
-}, 2000);
 
 // Установка башни
 canvas.addEventListener("click", (e) => {
@@ -77,4 +70,33 @@ canvas.addEventListener("click", (e) => {
   }
 });
 
+// Волны врагов
+function startWave() {
+  isWaveInProgress = true;
+  waveCounter.textContent = "Волна: " + waveNumber;
+
+  let spawnCount = 0;
+  const totalEnemies = 5 + waveNumber * 2;
+
+  const spawnInterval = setInterval(() => {
+    if (spawnCount >= totalEnemies) {
+      clearInterval(spawnInterval);
+      isWaveInProgress = false;
+      waveNumber++;
+      setTimeout(startWave, waveCooldown);
+      return;
+    }
+
+    enemies.push({
+      x: 0,
+      y: 50 + Math.random() * (window.innerHeight - 100),
+      speed: 1 + waveNumber * 0.2,
+      hp: 20 + waveNumber * 5
+    });
+
+    spawnCount++;
+  }, 400);
+}
+
 draw();
+startWave();
