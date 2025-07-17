@@ -2,13 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Tower Defense</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Выбор героя</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="waveCounter">Волна: 1</div>
-  <canvas id="gameCanvas"></canvas>
-  <script src="game.js"></script>
+  <h1>Выберите своего героя</h1>
+  <div id="heroSelect">
+    <img src="assets/hero1.png" onclick="selectHero('hero1.png')" />
+    <img src="assets/hero2.png" onclick="selectHero('hero2.png')" />
+    <img src="assets/hero3.png" onclick="selectHero('hero3.png')" />
+  </div>
+  <script>
+    function selectHero(filename) {
+      localStorage.setItem("selectedHero", filename);
+      window.location.href = "game.html";
+    }
+  </script>
 </body>
 </html>
