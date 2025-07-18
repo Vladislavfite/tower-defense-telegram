@@ -18,3 +18,17 @@ canvas {
   width: 100vw;
   height: 100vh;
 }
+
+#hero-selection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+}
+
+#hero-selection img {
+  width: 250px;
+  height: 250px;
+  object-fit: contain;
+  margin: 0 10px;
+}
