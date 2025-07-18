@@ -8,6 +8,11 @@
 </head>
 <body>
   <h1>🗼 Tower Defense</h1>
+  <div id="hero-selection">
+    <button id="prevHero">⬅</button>
+    <img id="heroImage" src="assets/heroes/hero1.png" alt="Hero" />
+    <button id="nextHero">➡</button>
+  </div>
   <button onclick="startGame()">▶ Играть</button>
   <button onclick="openShop()">🏪 Магазин</button>
   <button onclick="continueGame()">⏯ Продолжить</button>
@@ -19,9 +24,26 @@
     function openShop() {
       window.location.href = "shop.html";
     }
-    function continueGame() {
-      alert("Загрузка сохранённой игры (заглушка)");
-    }
-  </script>
+      function continueGame() {
+        alert("Загрузка сохранённой игры (заглушка)");
+      }
+
+      const heroes = [
+        "assets/heroes/hero1.png",
+        "assets/heroes/hero2.png",
+        "assets/heroes/hero3.png",
+      ];
+      let currentHero = 0;
+      const heroImage = document.getElementById("heroImage");
+
+      document.getElementById("prevHero").addEventListener("click", () => {
+        currentHero = (currentHero - 1 + heroes.length) % heroes.length;
+        heroImage.src = heroes[currentHero];
+      });
+      document.getElementById("nextHero").addEventListener("click", () => {
+        currentHero = (currentHero + 1) % heroes.length;
+        heroImage.src = heroes[currentHero];
+      });
+    </script>
 </body>
 </html>
