@@ -10,3 +10,9 @@ button {
   padding: 10px 20px;
   margin: 10px;
 }
+canvas {
+  display: block;
+  margin: 20px auto;
+  border: 1px solid #555;
+  max-width: 100%;
+}
