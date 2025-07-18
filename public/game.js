@@ -8,10 +8,23 @@ function resizeCanvas() {
 }
 
 const mapImage = new Image();
-mapImage.src = 'assets/map/map.png';
+mapImage.src = 'assets/map/EMXN1y8qTQoGdXBsb2FkEg55bGFiLXN0dW50LXNncBoza2xpbmcvZG93bmxvYWQvTWpnME56azBOems0TXpBNE5UZ3pNVFV4TVRneE1UTTVNZz09.png';
 
 function drawMap() {
-  ctx.drawImage(mapImage, 0, 0, canvas.width, canvas.height);
+  const scale = Math.max(
+    canvas.width / mapImage.width,
+    canvas.height / mapImage.height
+  );
+  const x = (canvas.width - mapImage.width * scale) / 2;
+  const y = (canvas.height - mapImage.height * scale) / 2;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(
+    mapImage,
+    x,
+    y,
+    mapImage.width * scale,
+    mapImage.height * scale
+  );
 }
 
 mapImage.onload = () => {
