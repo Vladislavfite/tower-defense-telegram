@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tower Defense</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>🗼 Tower Defense</h1>
+  <button onclick="startGame()">▶ Играть</button>
+  <button onclick="openShop()">🏪 Магазин</button>
+  <button onclick="continueGame()">⏯ Продолжить</button>
+
+  <script>
+    function startGame() {
+      window.location.href = "game.html";
+    }
+    function openShop() {
+      window.location.href = "shop.html";
+    }
+    function continueGame() {
+      alert("Загрузка сохранённой игры (заглушка)");
+    }
+  </script>
+</body>
+</html>
